@@ -333,6 +333,7 @@ export function useAppState() {
   return context;
 }
 
-// Also export useStore as an alias for compatibility
+// Export aliases for compatibility
+export { AppStateProvider, useAppState };
 export const useStore = useAppState;
 export const StoreProvider = AppStateProvider;
