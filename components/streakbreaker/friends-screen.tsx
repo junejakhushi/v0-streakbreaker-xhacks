@@ -8,18 +8,15 @@ import { UserAvatar, UserAvatarStack, UserRow } from './user-avatar';
 import { RealmCard, RealmBadge } from './realm-card';
 import { mockFriendGroups, mockDuoPairings, mockNotifications } from '@/lib/data/feed';
 import { mockUsers, getUserById } from '@/lib/data/users';
+import { useAppState } from '@/lib/store';
 import { cn } from '@/lib/utils';
 
-interface FriendsScreenProps {
-  currentUser: User;
-  notifications: Notification[];
-  onMarkRead: (id: string) => void;
-}
-
-export function FriendsScreen({ currentUser, notifications, onMarkRead }: FriendsScreenProps) {
+export function FriendsScreen() {
+  const { currentUser, state, markNotificationRead } = useAppState();
   const [activeTab, setActiveTab] = useState<'group' | 'notifications'>('group');
   
-  const friendGroup = mockFriendGroups.find(g => g.id === currentUser.friendGroup) || mockFriendGroups[0];
+  const notifications = state.notifications || [];
+  const friendGroup = mockFriendGroups.find(g => g.id === currentUser?.friendGroup) || mockFriendGroups[0];
   const groupMembers = friendGroup.members
     .map(id => getUserById(id))
     .filter(Boolean) as User[];
@@ -96,7 +93,7 @@ export function FriendsScreen({ currentUser, notifications, onMarkRead }: Friend
           >
             <NotificationsTab 
               notifications={notifications}
-              onMarkRead={onMarkRead}
+              onMarkRead={markNotificationRead}
             />
           </motion.div>
         )}
