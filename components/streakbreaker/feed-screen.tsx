@@ -2,15 +2,12 @@
 
 import { motion } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
-import { FeedPost as FeedPostType } from '@/lib/types';
 import { FeedPost, FeedSkeleton } from './feed-post';
+import { useAppState } from '@/lib/store';
 
-interface FeedScreenProps {
-  posts: FeedPostType[];
-  onImIn: (postId: string) => void;
-}
-
-export function FeedScreen({ posts, onImIn }: FeedScreenProps) {
+export function FeedScreen() {
+  const { state, reactToPost } = useAppState();
+  const posts = state.feed || [];
   return (
     <div className="min-h-screen pb-20">
       {/* Header */}
@@ -40,7 +37,7 @@ export function FeedScreen({ posts, onImIn }: FeedScreenProps) {
             >
               <FeedPost
                 post={post}
-                onImIn={() => onImIn(post.id)}
+                onImIn={() => reactToPost(post.id, 'im-in')}
               />
             </motion.div>
           ))
