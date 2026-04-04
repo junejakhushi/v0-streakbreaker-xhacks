@@ -334,6 +334,5 @@ export function useAppState() {
 }
 
 // Export aliases for compatibility
-export { AppStateProvider, useAppState };
 export const useStore = useAppState;
 export const StoreProvider = AppStateProvider;
