@@ -14,9 +14,14 @@ interface ReactionDeckProps {
   onEmpty?: () => void;
 }
 
-export function ReactionDeck({ posts, onReact, onEmpty }: ReactionDeckProps) {
+export function ReactionDeck({ posts = [], onReact, onEmpty }: ReactionDeckProps) {
   const [deck, setDeck] = useState(posts);
   const [lastAction, setLastAction] = useState<string | null>(null);
+
+  // Sync deck with posts when posts change
+  if (posts.length > 0 && deck.length === 0 && posts !== deck) {
+    setDeck(posts);
+  }
 
   const handleSwipe = (direction: 'left' | 'right' | 'up') => {
     if (deck.length === 0) return;

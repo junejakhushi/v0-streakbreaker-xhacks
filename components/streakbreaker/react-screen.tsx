@@ -1,14 +1,11 @@
 'use client';
 
-import { FeedPost } from '@/lib/types';
+import { useAppState } from '@/lib/store';
 import { ReactionDeck } from './reaction-deck';
 
-interface ReactScreenProps {
-  posts: FeedPost[];
-  onReact: (postId: string, reaction: 'lets-go' | 'could-do-more' | 'im-in') => void;
-}
+export function ReactScreen() {
+  const { reactionDeck, reactToPost } = useAppState();
 
-export function ReactScreen({ posts, onReact }: ReactScreenProps) {
   return (
     <div className="min-h-screen pb-20">
       {/* Header */}
@@ -22,8 +19,8 @@ export function ReactScreen({ posts, onReact }: ReactScreenProps) {
       {/* Deck */}
       <div className="px-4 pt-4">
         <ReactionDeck
-          posts={posts}
-          onReact={onReact}
+          posts={reactionDeck}
+          onReact={reactToPost}
         />
       </div>
     </div>

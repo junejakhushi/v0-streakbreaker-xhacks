@@ -36,6 +36,7 @@ interface AppStateContextType {
   submitReceipt: (caption: string, imageUrl?: string) => void;
   
   // Social actions
+  reactionDeck: FeedPost[];
   reactToPost: (postId: string, reaction: 'lets-go' | 'could-do-more' | 'im-in') => void;
   saveTask: (task: Task) => void;
   removeFromDeck: (postId: string) => void;
@@ -311,6 +312,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         receiveFriendPick,
         submitReceipt,
         reactToPost,
+        reactionDeck: state.reactionDeck,
         saveTask,
         removeFromDeck,
         markNotificationRead,
