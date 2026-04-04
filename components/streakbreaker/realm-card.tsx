@@ -25,7 +25,8 @@ const realmStyles: Record<Realm, { bg: string; glow: string; text: string }> = {
 };
 
 export function RealmCard({ realm, isSelected, onClick, size = 'md', showLabel = true }: RealmCardProps) {
-  const styles = realmStyles[realm];
+  const styles = realmStyles[realm] || { bg: 'bg-muted/20', glow: '', text: 'text-muted-foreground' };
+  const icon = realmIcons[realm] || '?';
   
   const sizeClasses = {
     sm: 'w-14 h-14',
@@ -60,7 +61,7 @@ export function RealmCard({ realm, isSelected, onClick, size = 'md', showLabel =
         animate={isSelected ? { scale: [1, 1.05, 1] } : undefined}
         transition={{ duration: 0.3 }}
       >
-        <span className={cn(iconSizes[size])}>{realmIcons[realm]}</span>
+        <span className={cn(iconSizes[size])}>{icon}</span>
         
         {isSelected && (
           <motion.div
@@ -85,7 +86,8 @@ export function RealmCard({ realm, isSelected, onClick, size = 'md', showLabel =
 }
 
 export function RealmBadge({ realm, className }: { realm: Realm; className?: string }) {
-  const styles = realmStyles[realm];
+  const styles = realmStyles[realm] || { bg: 'bg-muted/20', glow: '', text: 'text-muted-foreground' };
+  const icon = realmIcons[realm] || '?';
   
   return (
     <span className={cn(
@@ -94,7 +96,7 @@ export function RealmBadge({ realm, className }: { realm: Realm; className?: str
       styles.text,
       className
     )}>
-      <span className="text-sm">{realmIcons[realm]}</span>
+      <span className="text-sm">{icon}</span>
       {realm}
     </span>
   );
