@@ -2,21 +2,25 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Share2, Award, TrendingUp, Clock, Users, Zap, Target, Flame, RotateCcw } from 'lucide-react';
-import { User, Task, Badge } from '@/lib/types';
+import { Settings, Share2, Clock, Users, Zap, Bell } from 'lucide-react';
+import { Task, Badge, Realm } from '@/lib/types';
 import { UserAvatar } from './user-avatar';
 import { RealmCard, RealmBadge } from './realm-card';
 import { StatsGrid } from './stats-display';
 import { cn } from '@/lib/utils';
+import { useAppState } from '@/lib/store';
 
 interface ProfileScreenProps {
-  user: User;
-  savedTasks: Task[];
-  isCurrentUser?: boolean;
+  onOpenSettings?: () => void;
 }
 
-export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: ProfileScreenProps) {
+export function ProfileScreen({ onOpenSettings }: ProfileScreenProps) {
+  const { currentUser, state, setCurrentScreen } = useAppState();
   const [activeTab, setActiveTab] = useState<'public' | 'private'>('public');
+  
+  // Use currentUser from store or fallback to state.currentUser
+  const user = currentUser || state.currentUser;
+  const savedTasks = state.savedTasks;
 
   const vibeColors = {
     'Mild': 'bg-lime/20 text-lime',
@@ -30,14 +34,24 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
       <div className="flex items-center justify-between p-4">
         <h1 className="text-xl font-bold">Profile</h1>
         <div className="flex items-center gap-2">
-          <button className="p-2 rounded-full hover:bg-secondary transition-colors">
+          <button 
+            onClick={() => setCurrentScreen('notifications')}
+            className="p-2 rounded-full hover:bg-surface-1 transition-colors relative"
+          >
+            <Bell className="w-5 h-5" />
+            {state.notifications.filter(n => !n.isRead).length > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-coral rounded-full" />
+            )}
+          </button>
+          <button className="p-2 rounded-full hover:bg-surface-1 transition-colors">
             <Share2 className="w-5 h-5" />
           </button>
-          {isCurrentUser && (
-            <button className="p-2 rounded-full hover:bg-secondary transition-colors">
-              <Settings className="w-5 h-5" />
-            </button>
-          )}
+          <button 
+            onClick={onOpenSettings}
+            className="p-2 rounded-full hover:bg-surface-1 transition-colors"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
@@ -48,7 +62,7 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
           animate={{ scale: 1, opacity: 1 }}
           className="mb-4"
         >
-          <UserAvatar user={user} size="xl" showRing ringColor="ring-primary" />
+          <UserAvatar user={user} size="xl" showRing ringColor="ring-lime" />
         </motion.div>
         
         <h2 className="text-2xl font-bold mb-1">@{user.username}</h2>
@@ -65,7 +79,7 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
         </div>
 
         {/* Known for */}
-        {user.knownFor.length > 0 && (
+        {user.knownFor && user.knownFor.length > 0 && (
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             {user.knownFor.map((trait, i) => (
               <span key={i} className="text-sm text-muted-foreground">
@@ -89,42 +103,46 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
       </div>
 
       {/* Top realms */}
-      <div className="px-4 mb-6">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">Top Realms</h3>
-        <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
-          {user.topRealms.map((realm, index) => (
-            <div key={realm} className="flex flex-col items-center gap-1 shrink-0">
-              <div className="relative">
-                <RealmCard realm={realm} size="md" showLabel={false} />
-                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
-                  {index + 1}
-                </span>
+      {user.topRealms && user.topRealms.length > 0 && (
+        <div className="px-4 mb-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Top Realms</h3>
+          <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+            {user.topRealms.map((realm, index) => (
+              <div key={realm} className="flex flex-col items-center gap-1 shrink-0">
+                <div className="relative">
+                  <RealmCard realm={realm} size="md" showLabel={false} />
+                  <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-lime text-background text-xs flex items-center justify-center font-bold">
+                    {index + 1}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground">{realm}</span>
               </div>
-              <span className="text-xs text-muted-foreground">{realm}</span>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Badges */}
-      <div className="px-4 mb-6">
-        <h3 className="text-sm font-medium text-muted-foreground mb-3">Badges</h3>
-        <div className="grid grid-cols-2 gap-3">
-          {user.badges.map((badge) => (
-            <BadgeCard key={badge.id} badge={badge} />
-          ))}
+      {user.badges && user.badges.length > 0 && (
+        <div className="px-4 mb-6">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Badges</h3>
+          <div className="grid grid-cols-2 gap-3">
+            {user.badges.map((badge) => (
+              <BadgeCard key={badge.id} badge={badge} />
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Tabs */}
       <div className="px-4 mb-4">
-        <div className="flex gap-2 p-1 rounded-xl bg-secondary">
+        <div className="flex gap-2 p-1 rounded-xl bg-surface-1">
           <button
             onClick={() => setActiveTab('public')}
             className={cn(
               'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
               activeTab === 'public'
-                ? 'bg-background text-foreground'
+                ? 'bg-surface-2 text-foreground'
                 : 'text-muted-foreground'
             )}
           >
@@ -135,7 +153,7 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
             className={cn(
               'flex-1 py-2 rounded-lg text-sm font-medium transition-colors',
               activeTab === 'private'
-                ? 'bg-background text-foreground'
+                ? 'bg-surface-2 text-foreground'
                 : 'text-muted-foreground'
             )}
           >
@@ -147,9 +165,9 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
       {/* Content */}
       <div className="px-4">
         {activeTab === 'public' ? (
-          <PublicActivity user={user} />
+          <PublicActivity />
         ) : (
-          <PrivateActivity user={user} savedTasks={savedTasks} />
+          <PrivateActivity savedTasks={savedTasks} />
         )}
       </div>
     </div>
@@ -158,7 +176,7 @@ export function ProfileScreen({ user, savedTasks, isCurrentUser = true }: Profil
 
 function BadgeCard({ badge }: { badge: Badge }) {
   const rarityColors = {
-    common: 'border-border',
+    common: 'border-white/10',
     rare: 'border-cyan/50 bg-cyan/5',
     legendary: 'border-violet/50 bg-violet/5',
   };
@@ -166,7 +184,7 @@ function BadgeCard({ badge }: { badge: Badge }) {
   return (
     <motion.div
       className={cn(
-        'p-4 rounded-2xl border',
+        'p-4 rounded-2xl border bg-surface-1',
         rarityColors[badge.rarity]
       )}
       whileHover={{ scale: 1.02 }}
@@ -178,12 +196,12 @@ function BadgeCard({ badge }: { badge: Badge }) {
   );
 }
 
-function PublicActivity({ user }: { user: User }) {
+function PublicActivity() {
   // Mock recent receipts
   const mockReceipts = [
-    { realm: 'Food' as const, task: 'Order something you can\'t pronounce', time: '2h ago', reactions: 12 },
-    { realm: 'Social' as const, task: 'Compliment a stranger genuinely', time: '1d ago', reactions: 23 },
-    { realm: 'Style' as const, task: 'Wear something you never wear', time: '2d ago', reactions: 8 },
+    { realm: 'Food' as Realm, task: "Order something you can't pronounce", time: '2h ago', reactions: 12 },
+    { realm: 'Social' as Realm, task: 'Compliment a stranger genuinely', time: '1d ago', reactions: 23 },
+    { realm: 'Style' as Realm, task: 'Wear something you never wear', time: '2d ago', reactions: 8 },
   ];
 
   return (
@@ -192,7 +210,7 @@ function PublicActivity({ user }: { user: User }) {
       {mockReceipts.map((receipt, i) => (
         <motion.div
           key={i}
-          className="p-4 rounded-2xl bg-card border border-border"
+          className="p-4 rounded-2xl bg-surface-1 border border-white/5"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.1 }}
@@ -207,7 +225,7 @@ function PublicActivity({ user }: { user: User }) {
           <p className="font-medium mb-2">{receipt.task}</p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
-              <TrendingUp className="w-4 h-4 text-lime" />
+              <Zap className="w-4 h-4 text-lime" />
               {receipt.reactions} reactions
             </span>
           </div>
@@ -217,7 +235,7 @@ function PublicActivity({ user }: { user: User }) {
   );
 }
 
-function PrivateActivity({ user, savedTasks }: { user: User; savedTasks: Task[] }) {
+function PrivateActivity({ savedTasks }: { savedTasks: Task[] }) {
   return (
     <div className="space-y-6">
       {/* Duo status */}
@@ -230,7 +248,7 @@ function PrivateActivity({ user, savedTasks }: { user: User; savedTasks: Task[] 
           Paired with @priya.sharma this week
         </p>
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
+          <div className="flex-1 h-2 rounded-full bg-surface-2 overflow-hidden">
             <div className="h-full w-1/2 bg-violet rounded-full" />
           </div>
           <span className="text-sm font-medium">1/2</span>
@@ -247,7 +265,7 @@ function PrivateActivity({ user, savedTasks }: { user: User; savedTasks: Task[] 
             {savedTasks.map((task) => (
               <div
                 key={task.id}
-                className="p-3 rounded-xl bg-card border border-border"
+                className="p-3 rounded-xl bg-surface-1 border border-white/5"
               >
                 <div className="flex items-center justify-between">
                   <div>

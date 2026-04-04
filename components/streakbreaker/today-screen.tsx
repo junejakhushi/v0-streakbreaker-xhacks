@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Dice6, Users, RotateCcw, Camera, ArrowRight, X, Clock, Zap } from 'lucide-react';
+import { Sparkles, Dice6, Users, RotateCcw, Camera, ArrowRight, X, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Task, Realm, User } from '@/lib/types';
 import { RealmCard, RealmBadge } from './realm-card';
@@ -10,23 +10,11 @@ import { TaskCard } from './task-card';
 import { StatsRow } from './stats-display';
 import { UserAvatar, UserAvatarStack, UserRow } from './user-avatar';
 import { ReceiptComposer } from './receipt-composer';
-import { mockUsers, getFriendsForUser } from '@/lib/data/users';
+import { mockUsers } from '@/lib/data/users';
 import { getRandomTask, getFriendPickOptions, getTasksByRealm } from '@/lib/data/tasks';
 import { getRandomFriendPickNote } from '@/lib/data/feed';
 import { cn } from '@/lib/utils';
-
-interface TodayScreenProps {
-  realm: Realm;
-  currentUser: {
-    currentRun: number;
-    tasksCompleted: number;
-    influenceScore: number;
-    rerolls: number;
-    friends: string[];
-    vibe: 'Mild' | 'Bold' | 'Unhinged';
-  };
-  onTaskComplete: () => void;
-}
+import { useAppState } from '@/lib/store';
 
 type FlowState = 
   | 'idle'
@@ -38,7 +26,10 @@ type FlowState =
   | 'task-selected'
   | 'receipt';
 
-export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenProps) {
+export function TodayScreen() {
+  const { state, submitReceipt, setCurrentScreen } = useAppState();
+  const { todayRealm, currentUser } = state;
+  
   const [flowState, setFlowState] = useState<FlowState>('idle');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedFriend, setSelectedFriend] = useState<User | null>(null);
@@ -51,14 +42,14 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
     .filter(Boolean) as User[];
 
   const handleFeelingLucky = () => {
-    const task = getRandomTask(realm, currentUser.vibe);
+    const task = getRandomTask(todayRealm, currentUser.vibe);
     setSelectedTask(task);
     setFlowState('feeling-lucky');
   };
 
   const handleReroll = () => {
     if (availableRerolls <= 0) return;
-    const task = getRandomTask(realm, currentUser.vibe);
+    const task = getRandomTask(todayRealm, currentUser.vibe);
     setSelectedTask(task);
     setRerollsUsed(prev => prev + 1);
   };
@@ -82,7 +73,7 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
     
     // Simulate friend picking
     setTimeout(() => {
-      const options = getFriendPickOptions(realm);
+      const options = getFriendPickOptions(todayRealm);
       const picked = options[Math.floor(Math.random() * options.length)];
       setSelectedTask(picked);
       setFriendNote(getRandomFriendPickNote());
@@ -94,8 +85,8 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
     setFlowState('receipt');
   };
 
-  const handleSubmitReceipt = () => {
-    onTaskComplete();
+  const handleSubmitReceipt = (caption: string) => {
+    submitReceipt(caption);
     setSelectedTask(null);
     setSelectedFriend(null);
     setFriendNote('');
@@ -127,21 +118,36 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
             className="px-4 py-6"
           >
             {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="text-sm text-muted-foreground">Today&apos;s Realm</p>
+                <h1 className="text-2xl font-bold">{todayRealm}</h1>
+              </div>
+              <button 
+                onClick={() => setCurrentScreen('notifications')}
+                className="relative p-2 rounded-full hover:bg-surface-1 transition-colors"
+              >
+                <Bell className="w-6 h-6" />
+                {state.notifications.filter(n => !n.isRead).length > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-coral rounded-full" />
+                )}
+              </button>
+            </div>
+
+            {/* Realm Card */}
             <div className="text-center mb-8">
-              <p className="text-sm text-muted-foreground mb-2">Today&apos;s Realm</p>
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 15 }}
               >
-                <RealmCard realm={realm} size="lg" showLabel={false} />
+                <RealmCard realm={todayRealm} size="lg" showLabel={false} />
               </motion.div>
-              <h1 className="text-3xl font-bold mt-4">{realm}</h1>
-              <p className="text-muted-foreground mt-1">Today feels suspiciously predictable.</p>
+              <p className="text-muted-foreground mt-4">Today feels suspiciously predictable.</p>
             </div>
 
             {/* Stats */}
-            <div className="mb-8 p-4 rounded-2xl bg-card border border-border">
+            <div className="mb-8 p-4 rounded-2xl bg-surface-1 border border-white/5">
               <StatsRow
                 currentRun={currentUser.currentRun}
                 tasksCompleted={currentUser.tasksCompleted}
@@ -171,11 +177,11 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
 
               <motion.button
                 onClick={handlePickOwn}
-                className="w-full p-4 rounded-2xl bg-card border border-border text-left transition-all hover:bg-secondary"
+                className="w-full p-4 rounded-2xl bg-surface-1 border border-white/5 text-left transition-all hover:bg-surface-2"
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-surface-2 flex items-center justify-center">
                     <Sparkles className="w-6 h-6" />
                   </div>
                   <div className="flex-1">
@@ -236,7 +242,7 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
         {flowState === 'pick-own' && (
           <TaskBrowserScreen
             key="pick-own"
-            realm={realm}
+            realm={todayRealm}
             onSelect={handleSelectTask}
             onBack={handleBack}
           />
@@ -257,7 +263,7 @@ export function TodayScreen({ realm, currentUser, onTaskComplete }: TodayScreenP
           <FriendPickPendingScreen
             key="friend-pending"
             friend={selectedFriend}
-            realm={realm}
+            realm={todayRealm}
           />
         )}
 
@@ -335,7 +341,7 @@ function TaskRevealScreen({
     >
       <button
         onClick={onBack}
-        className="mb-6 p-2 rounded-full hover:bg-secondary transition-colors"
+        className="mb-6 p-2 rounded-full hover:bg-surface-1 transition-colors"
       >
         <X className="w-6 h-6" />
       </button>
@@ -369,8 +375,8 @@ function TaskRevealScreen({
           className={cn(
             'w-full mt-4 p-3 rounded-xl flex items-center justify-center gap-2 transition-colors',
             rerolls > 0 
-              ? 'bg-secondary hover:bg-secondary/80 text-foreground'
-              : 'bg-secondary/50 text-muted-foreground cursor-not-allowed'
+              ? 'bg-surface-1 hover:bg-surface-2 text-foreground'
+              : 'bg-surface-1/50 text-muted-foreground cursor-not-allowed'
           )}
           whileTap={rerolls > 0 ? { scale: 0.98 } : undefined}
         >
@@ -415,7 +421,7 @@ function TaskBrowserScreen({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-full hover:bg-secondary transition-colors"
+          className="p-2 rounded-full hover:bg-surface-1 transition-colors"
         >
           <X className="w-6 h-6" />
         </button>
@@ -434,8 +440,8 @@ function TaskBrowserScreen({
             className={cn(
               'px-4 py-2 rounded-full text-sm font-medium transition-colors shrink-0',
               filter === v 
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-secondary text-foreground hover:bg-secondary/80'
+                ? 'bg-lime text-background'
+                : 'bg-surface-1 text-foreground hover:bg-surface-2'
             )}
           >
             {v === 'all' ? 'All vibes' : v}
@@ -476,7 +482,7 @@ function FriendSelectScreen({
       <div className="flex items-center gap-4 mb-6">
         <button
           onClick={onBack}
-          className="p-2 rounded-full hover:bg-secondary transition-colors"
+          className="p-2 rounded-full hover:bg-surface-1 transition-colors"
         >
           <X className="w-6 h-6" />
         </button>

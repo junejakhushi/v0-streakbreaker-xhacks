@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface LandingPageProps {
-  onEnterApp: () => void;
+  onGetStarted: () => void;
 }
 
 const stats = [
@@ -22,7 +22,7 @@ const steps = [
   { icon: '🔥', title: 'React', description: 'Judge your friends, spread the vibes' },
 ];
 
-export function LandingPage({ onEnterApp }: LandingPageProps) {
+export function LandingPage({ onGetStarted }: LandingPageProps) {
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Hero Section */}
@@ -96,7 +96,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             transition={{ delay: 0.6 }}
           >
             <Button
-              onClick={onEnterApp}
+              onClick={onGetStarted}
               size="lg"
               className="bg-lime text-background hover:bg-lime/90 rounded-full px-8 py-6 text-lg font-semibold glow-lime"
             >
@@ -264,7 +264,7 @@ export function LandingPage({ onEnterApp }: LandingPageProps) {
             Join thousands already disrupting their daily patterns.
           </p>
           <Button
-            onClick={onEnterApp}
+            onClick={onGetStarted}
             size="lg"
             className="bg-lime text-background hover:bg-lime/90 rounded-full px-8 py-6 text-lg font-semibold"
           >

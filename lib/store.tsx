@@ -1,19 +1,32 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { AppState, Task, Realm, User, FeedPost, Notification, OnboardingState, Vibe } from './types';
+import { AppState, Task, Realm, User, FeedPost, OnboardingState, Vibe, Screen } from './types';
 import { currentDemoUser, mockUsers, getUserById } from './data/users';
 import { getTodayRealm, generateMockFeed, generateReactionDeck, mockNotifications, getRandomFriendPickNote } from './data/feed';
 import { getRandomTask, getFriendPickOptions, tasks } from './data/tasks';
 
-interface StoreContextType {
+interface AppStateContextType {
+  // App-level state
+  currentUser: User | null;
+  currentScreen: Screen;
+  setCurrentScreen: (screen: Screen) => void;
+  isOnboarding: boolean;
+  setIsOnboarding: (value: boolean) => void;
+  hasSeenLanding: boolean;
+  setHasSeenLanding: (value: boolean) => void;
+  
+  // Core state
   state: AppState;
   onboarding: OnboardingState;
-  isOnboarded: boolean;
-  setOnboarded: (value: boolean) => void;
+  
+  // Onboarding
   updateOnboarding: (updates: Partial<OnboardingState>) => void;
   nextOnboardingStep: () => void;
   prevOnboardingStep: () => void;
+  completeOnboarding: (userData: Partial<User>) => void;
+  
+  // Task actions
   selectTask: (task: Task) => void;
   clearSelectedTask: () => void;
   feelingLucky: () => void;
@@ -21,17 +34,26 @@ interface StoreContextType {
   startFriendPick: (friend: User) => void;
   receiveFriendPick: (task: Task, note?: string) => void;
   submitReceipt: (caption: string, imageUrl?: string) => void;
+  
+  // Social actions
   reactToPost: (postId: string, reaction: 'lets-go' | 'could-do-more' | 'im-in') => void;
   saveTask: (task: Task) => void;
   removeFromDeck: (postId: string) => void;
   markNotificationRead: (id: string) => void;
+  
+  // User actions
   updateUser: (updates: Partial<User>) => void;
+  resetApp: () => void;
 }
 
-const StoreContext = createContext<StoreContextType | undefined>(undefined);
+const AppStateContext = createContext<AppStateContextType | undefined>(undefined);
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [isOnboarded, setOnboarded] = useState(false);
+export function AppStateProvider({ children }: { children: ReactNode }) {
+  // App-level state
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentScreen, setCurrentScreen] = useState<Screen>('today');
+  const [isOnboarding, setIsOnboarding] = useState(true);
+  const [hasSeenLanding, setHasSeenLanding] = useState(false);
   
   const [onboarding, setOnboarding] = useState<OnboardingState>({
     step: 0,
@@ -69,6 +91,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const prevOnboardingStep = useCallback(() => {
     setOnboarding(prev => ({ ...prev, step: Math.max(0, prev.step - 1) }));
   }, []);
+
+  const completeOnboarding = useCallback((userData: Partial<User>) => {
+    const newUser: User = {
+      ...currentDemoUser,
+      ...userData,
+      id: 'user-1',
+      username: onboarding.username || 'user',
+      displayName: onboarding.username || 'User',
+      avatar: onboarding.avatar || '',
+      vibe: onboarding.vibe || 'Bold',
+      topRealms: onboarding.favoriteRealms.slice(0, 3) as [Realm, Realm, Realm],
+    };
+    setCurrentUser(newUser);
+    setState(prev => ({ ...prev, currentUser: newUser }));
+    setIsOnboarding(false);
+  }, [onboarding]);
 
   const selectTask = useCallback((task: Task) => {
     setState(prev => ({
@@ -157,14 +195,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       selectedTask: null,
       taskSelectionMode: 'none',
     }));
-  }, []);
+    if (currentUser) {
+      setCurrentUser(prev => prev ? {
+        ...prev,
+        tasksCompleted: prev.tasksCompleted + 1,
+        currentRun: prev.currentRun + 1,
+        influenceScore: prev.influenceScore + 10,
+      } : null);
+    }
+  }, [currentUser]);
 
   const reactToPost = useCallback((postId: string, reaction: 'lets-go' | 'could-do-more' | 'im-in') => {
     setState(prev => {
       const post = prev.reactionDeck.find(p => p.id === postId);
       
       if (reaction === 'im-in' && post) {
-        // Save the task to user's saved tasks
         return {
           ...prev,
           savedTasks: [...prev.savedTasks, post.task],
@@ -207,18 +252,56 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       ...prev,
       currentUser: { ...prev.currentUser, ...updates },
     }));
+    if (currentUser) {
+      setCurrentUser(prev => prev ? { ...prev, ...updates } : null);
+    }
+  }, [currentUser]);
+
+  const resetApp = useCallback(() => {
+    setCurrentUser(null);
+    setIsOnboarding(true);
+    setHasSeenLanding(false);
+    setOnboarding({
+      step: 0,
+      vibe: undefined,
+      favoriteRealms: [],
+      username: '',
+      avatar: undefined,
+      friendGroupAction: null,
+      friendGroupName: undefined,
+      isVerified: false,
+    });
+    setState({
+      currentUser: currentDemoUser,
+      todayRealm: getTodayRealm(),
+      selectedTask: null,
+      taskSelectionMode: 'none',
+      friendPickStatus: null,
+      friendPicker: undefined,
+      friendPickNote: undefined,
+      savedTasks: [],
+      reactionDeck: generateReactionDeck(),
+      notifications: mockNotifications,
+      feed: generateMockFeed(),
+    });
   }, []);
 
   return (
-    <StoreContext.Provider
+    <AppStateContext.Provider
       value={{
+        currentUser,
+        currentScreen,
+        setCurrentScreen,
+        isOnboarding,
+        setIsOnboarding,
+        hasSeenLanding,
+        setHasSeenLanding,
         state,
         onboarding,
-        isOnboarded,
-        setOnboarded,
         updateOnboarding,
         nextOnboardingStep,
         prevOnboardingStep,
+        completeOnboarding,
         selectTask,
         clearSelectedTask,
         feelingLucky,
@@ -231,17 +314,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         removeFromDeck,
         markNotificationRead,
         updateUser,
+        resetApp,
       }}
     >
       {children}
-    </StoreContext.Provider>
+    </AppStateContext.Provider>
   );
 }
 
-export function useStore() {
-  const context = useContext(StoreContext);
+export function useAppState() {
+  const context = useContext(AppStateContext);
   if (!context) {
-    throw new Error('useStore must be used within a StoreProvider');
+    throw new Error('useAppState must be used within an AppStateProvider');
   }
   return context;
 }
+
+// Also export useStore as an alias for compatibility
+export const useStore = useAppState;
+export const StoreProvider = AppStateProvider;

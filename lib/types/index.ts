@@ -33,6 +33,7 @@ export interface Task {
 export interface User {
   id: string;
   username: string;
+  displayName: string;
   avatar: string;
   vibe: Vibe;
   currentRun: number;
@@ -151,3 +152,12 @@ export interface OnboardingState {
   friendGroupName?: string;
   isVerified: boolean;
 }
+
+export type Screen = 
+  | 'today' 
+  | 'feed' 
+  | 'react' 
+  | 'friends' 
+  | 'profile' 
+  | 'notifications' 
+  | 'settings';

@@ -91,6 +91,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-1',
     username: 'maya.chen',
+    displayName: 'Maya Chen',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=maya',
     vibe: 'Bold',
     currentRun: 12,
@@ -108,6 +109,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-2',
     username: 'leo.martinez',
+    displayName: 'Leo Martinez',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=leo',
     vibe: 'Unhinged',
     currentRun: 23,
@@ -125,6 +127,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-3',
     username: 'priya.sharma',
+    displayName: 'Priya Sharma',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=priya',
     vibe: 'Mild',
     currentRun: 45,
@@ -142,6 +145,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-4',
     username: 'jay.wilson',
+    displayName: 'Jay Wilson',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=jay',
     vibe: 'Bold',
     currentRun: 8,
@@ -159,6 +163,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-5',
     username: 'sam.taylor',
+    displayName: 'Sam Taylor',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=sam',
     vibe: 'Mild',
     currentRun: 17,
@@ -176,6 +181,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-6',
     username: 'zoe.kim',
+    displayName: 'Zoe Kim',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=zoe',
     vibe: 'Bold',
     currentRun: 5,
@@ -193,6 +199,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-7',
     username: 'alex.rivera',
+    displayName: 'Alex Rivera',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=alex',
     vibe: 'Unhinged',
     currentRun: 31,
@@ -210,6 +217,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-8',
     username: 'jordan.patel',
+    displayName: 'Jordan Patel',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=jordan',
     vibe: 'Mild',
     currentRun: 14,
@@ -227,6 +235,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-9',
     username: 'riley.johnson',
+    displayName: 'Riley Johnson',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=riley',
     vibe: 'Bold',
     currentRun: 9,
@@ -244,6 +253,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-10',
     username: 'casey.nguyen',
+    displayName: 'Casey Nguyen',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=casey',
     vibe: 'Bold',
     currentRun: 19,
@@ -261,6 +271,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-11',
     username: 'morgan.davis',
+    displayName: 'Morgan Davis',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=morgan',
     vibe: 'Mild',
     currentRun: 28,
@@ -278,6 +289,7 @@ export const mockUsers: User[] = [
   {
     id: 'user-12',
     username: 'taylor.brooks',
+    displayName: 'Taylor Brooks',
     avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=taylor',
     vibe: 'Unhinged',
     currentRun: 7,
@@ -297,6 +309,7 @@ export const mockUsers: User[] = [
 export const currentDemoUser: User = {
   id: 'current-user',
   username: 'you',
+  displayName: 'You',
   avatar: 'https://api.dicebear.com/7.x/lorelei/svg?seed=demo',
   vibe: 'Bold',
   currentRun: 7,
