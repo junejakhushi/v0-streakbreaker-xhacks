@@ -58,10 +58,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   const handleComplete = () => {
     if (!vibe) return;
+    const finalUsername = username || `breaker${Math.floor(Math.random() * 10000)}`;
     onComplete({
       vibe,
       favoriteRealms,
-      username: username || `user${Math.floor(Math.random() * 10000)}`,
+      username: finalUsername,
       avatar: `https://api.dicebear.com/7.x/lorelei/svg?seed=${avatarSeed}`,
       friendGroupAction: friendGroupAction || 'join',
       friendGroupName,

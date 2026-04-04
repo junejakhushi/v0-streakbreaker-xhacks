@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect } from "react"
 import { AnimatePresence, motion } from "framer-motion"
 import { AppStateProvider, useAppState } from "@/lib/store"
 import { LandingPage } from "@/components/streakbreaker/landing-page"
@@ -22,7 +21,9 @@ function AppContent() {
     isOnboarding, 
     setIsOnboarding,
     hasSeenLanding,
-    setHasSeenLanding 
+    setHasSeenLanding,
+    completeOnboarding,
+    updateOnboarding,
   } = useAppState()
 
   // Show landing page for first-time visitors
@@ -41,9 +42,20 @@ function AppContent() {
     return (
       <Onboarding 
         onComplete={(data) => {
-          // The completeOnboarding function handles setting up the user
-          // For now, we just mark onboarding as complete
-          setIsOnboarding(false)
+          // First update the onboarding state with favorite realms
+          updateOnboarding({
+            favoriteRealms: data.favoriteRealms,
+            vibe: data.vibe,
+            username: data.username,
+            avatar: data.avatar,
+          })
+          // Then complete onboarding to set up the user
+          completeOnboarding({
+            username: data.username,
+            displayName: data.username,
+            avatar: data.avatar,
+            vibe: data.vibe,
+          })
           setCurrentScreen("today")
         }} 
       />

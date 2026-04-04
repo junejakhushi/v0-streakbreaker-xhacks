@@ -1,16 +1,18 @@
 import type { Metadata, Viewport } from 'next'
-import { Space_Grotesk, Inter } from 'next/font/google'
+import { DM_Sans, Archivo } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const spaceGrotesk = Space_Grotesk({ 
+const dmSans = DM_Sans({ 
   subsets: ["latin"],
   variable: '--font-sans',
+  weight: ['400', '500', '600', '700'],
 })
 
-const inter = Inter({ 
+const archivo = Archivo({ 
   subsets: ["latin"],
-  variable: '--font-body',
+  variable: '--font-display',
+  weight: ['700', '800', '900'],
 })
 
 export const metadata: Metadata = {
@@ -51,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased bg-background text-foreground`}>
+      <body className={`${dmSans.variable} ${archivo.variable} font-sans antialiased bg-background text-foreground`}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

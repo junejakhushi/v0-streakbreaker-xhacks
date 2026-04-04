@@ -95,13 +95,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const completeOnboarding = useCallback((userData: Partial<User>) => {
     const newUser: User = {
       ...currentDemoUser,
-      ...userData,
       id: 'user-1',
-      username: onboarding.username || 'user',
-      displayName: onboarding.username || 'User',
-      avatar: onboarding.avatar || '',
-      vibe: onboarding.vibe || 'Bold',
-      topRealms: onboarding.favoriteRealms.slice(0, 3) as [Realm, Realm, Realm],
+      username: userData.username || onboarding.username || 'user',
+      displayName: userData.displayName || userData.username || onboarding.username || 'User',
+      avatar: userData.avatar || onboarding.avatar || `https://api.dicebear.com/7.x/lorelei/svg?seed=${Date.now()}`,
+      vibe: userData.vibe || onboarding.vibe || 'Bold',
+      topRealms: onboarding.favoriteRealms.length >= 3 
+        ? onboarding.favoriteRealms.slice(0, 3) as [Realm, Realm, Realm]
+        : ['Social', 'Creative', 'Adventure'] as [Realm, Realm, Realm],
     };
     setCurrentUser(newUser);
     setState(prev => ({ ...prev, currentUser: newUser }));
