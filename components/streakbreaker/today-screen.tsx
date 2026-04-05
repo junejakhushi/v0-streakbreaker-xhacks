@@ -406,10 +406,14 @@ function TaskBrowserScreen({
   onSelect: (task: Task) => void;
   onBack: () => void;
 }) {
-  const tasks = getTasksByRealm(realm);
-  const [filter, setFilter] = useState<'all' | 'Mild' | 'Bold' | 'Unhinged'>('all');
+  // Get 3 random tasks from the realm
+  const [randomTasks] = useState(() => {
+    const allTasks = getTasksByRealm(realm);
+    const shuffled = [...allTasks].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  });
 
-  const filtered = filter === 'all' ? tasks : tasks.filter(t => t.vibe === filter);
+  const tasks = randomTasks;
 
   return (
     <motion.div
@@ -431,27 +435,9 @@ function TaskBrowserScreen({
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
-        {['all', 'Mild', 'Bold', 'Unhinged'].map((v) => (
-          <button
-            key={v}
-            onClick={() => setFilter(v as typeof filter)}
-            className={cn(
-              'px-4 py-2 rounded-full text-sm font-medium transition-colors shrink-0',
-              filter === v 
-                ? 'bg-lime text-background'
-                : 'bg-surface-1 text-foreground hover:bg-surface-2'
-            )}
-          >
-            {v === 'all' ? 'All vibes' : v}
-          </button>
-        ))}
-      </div>
-
-      {/* Task list */}
+      {/* Task list - 3 random options */}
       <div className="space-y-3">
-        {filtered.map((task) => (
+        {tasks.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
