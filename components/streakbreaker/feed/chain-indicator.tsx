@@ -41,7 +41,7 @@ export function ChainIndicator({ chain, users }: ChainIndicatorProps) {
       </div>
 
       <span className="text-xs font-medium text-[#A855F7]">
-        {chain.length} people went I&apos;m in
+        {chain.length} people went I&apos;m In
       </span>
     </div>
   );
