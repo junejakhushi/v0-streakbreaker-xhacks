@@ -1,62 +1,52 @@
-import type { Metadata, Viewport } from 'next'
-import { DM_Sans, Archivo } from 'next/font/google'
-import { Analytics } from '@vercel/analytics/next'
-import './globals.css'
+import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import "./globals.css";
 
-const dmSans = DM_Sans({ 
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
-  variable: '--font-sans',
-  weight: ['400', '500', '600', '700'],
-})
-
-const archivo = Archivo({ 
-  subsets: ["latin"],
-  variable: '--font-display',
-  weight: ['700', '800', '900'],
-})
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 export const metadata: Metadata = {
-  title: 'Streakbreaker - Break Your Routine',
-  description: 'The anti-habit app that challenges you to try new things and share the chaos with friends.',
-  generator: 'v0.app',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
-  },
-}
+  title: "Streakbreaker",
+  description: "Break the streak of sameness. A social anti-routine game.",
+};
 
 export const viewport: Viewport = {
-  themeColor: '#0f0f0f',
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-}
+  themeColor: "#0A0A0C",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${dmSans.variable} ${archivo.variable} font-sans antialiased bg-background text-foreground`}>
+    <html
+      lang="en"
+      className={`${jakarta.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            style: {
+              background: '#141418',
+              border: '1px solid rgba(255,255,255,0.06)',
+              color: '#F0F0F5',
+              borderRadius: '16px',
+              fontFamily: 'var(--font-sans)',
+            },
+          }}
+        />
       </body>
     </html>
-  )
+  );
 }

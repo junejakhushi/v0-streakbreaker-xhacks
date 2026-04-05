@@ -1,163 +1,141 @@
+export type RealmSlug = 'food' | 'place' | 'social' | 'communication' | 'style' | 'tiny-chaos' | 'campus' | 'comfort-zone';
+
 export type Vibe = 'Mild' | 'Bold' | 'Unhinged';
 
-export type Realm = 
-  | 'Food'
-  | 'Place'
-  | 'Social'
-  | 'Communication'
-  | 'Style'
-  | 'Tiny Chaos'
-  | 'Campus'
-  | 'Comfort Zone';
+export type ReactionType = 'could-do-more' | 'lets-gooo' | 'im-in';
 
-export type SocialRisk = 'low' | 'medium' | 'high';
-export type TimeEstimate = '< 5 min' | '5-15 min' | '15-30 min' | '30+ min';
-export type ProofType = 'photo' | 'text' | 'either';
+export type TaskSource = 'lucky' | 'picked' | 'friend-picked' | null;
 
-export interface Task {
-  id: string;
-  realm: Realm;
-  title: string;
+export interface Realm {
+  slug: RealmSlug;
+  name: string;
+  emoji: string;
   description: string;
-  vibe: Vibe;
-  socialRisk: SocialRisk;
-  timeEstimate: TimeEstimate;
-  proofTypeSuggestion: ProofType;
-  canBeFriendPicked: boolean;
-  canBeDuo: boolean;
-  tags: string[];
-  chainPotential: 'low' | 'medium' | 'high';
-  shortLabel?: string;
+  tagline: string;
+  accentHex: string;
+  glowClass: string;
+  bgGradient: string;
+  taskCount: number;
 }
 
 export interface User {
   id: string;
   username: string;
   displayName: string;
-  avatar: string;
-  vibe: Vibe;
-  currentRun: number;
-  tasksCompleted: number;
-  realmsExplored: Realm[];
-  influenceScore: number;
-  rerolls: number;
-  friends: string[];
-  badges: Badge[];
-  topRealms: Realm[];
-  knownFor: string[];
+  avatarUrl: string;
+  avatarGradient: string;
+  university: string;
   isVerified: boolean;
-  friendGroup?: string;
+  bio: string;
+  vibeChoice: Vibe;
+  joinedAt: string;
+  stats: UserStats;
+  knownFor: string[];
+  badgeIds: string[];
+  friendIds: string[];
+  groupIds: string[];
+  savedTaskIds: string[];
+  rerolls: number;
+  isCurrentUser?: boolean;
+}
+
+export interface UserStats {
+  currentRun: number;
+  longestRun: number;
+  tasksCompleted: number;
+  realmsExplored: number;
+  influenceScore: number;
+  friendCount: number;
+  duoWins: number;
+  duoCompletions: number;
+  reactionsReceived: number;
+  imInCount: number;
+  badgesEarned: number;
+}
+
+export interface Task {
+  id: string;
+  realmSlug: RealmSlug;
+  title: string;
+  description: string;
+  vibe: Vibe;
+  socialRisk: 1 | 2 | 3 | 4 | 5;
+  timeEstimate: string;
+  proofSuggestion: string;
+  canBeFriendPicked: boolean;
+  canBeDuo: boolean;
+  tags: string[];
+  chainPotential: 'low' | 'medium' | 'high';
+  label?: string;
+}
+
+export interface Receipt {
+  id: string;
+  userId: string;
+  taskId: string;
+  caption: string;
+  photoGradient: string;
+  photoImage: string | null;
+  textProof: string | null;
+  witnessId: string | null;
+  createdAt: string;
+  chainOriginReceiptId: string | null;
+  isPrivate: boolean;
+}
+
+export interface Reaction {
+  id: string;
+  receiptId: string;
+  userId: string;
+  type: ReactionType;
+  createdAt: string;
+}
+
+export interface Notification {
+  id: string;
+  type: 'reaction' | 'im-in' | 'friend-pick' | 'duo' | 'invite' | 'badge' | 'trend' | 'reroll' | 'system';
+  title: string;
+  body: string;
+  avatarUserId: string | null;
+  linkTo: string | null;
+  read: boolean;
+  createdAt: string;
+  groupKey?: string;
 }
 
 export interface Badge {
   id: string;
   name: string;
   description: string;
-  icon: string;
-  earnedAt?: Date;
-  rarity: 'common' | 'rare' | 'legendary';
+  emoji: string;
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  accentHex: string;
+  unlockCriteria: string;
 }
 
-export interface Receipt {
+export interface DuoPairing {
   id: string;
+  userIds: [string, string];
+  realmSlug: RealmSlug;
+  taskId: string | null;
+  sharedReceiptIds: string[];
+  weekStart: string;
+  completed: boolean;
+  isExtendedCircle: boolean;
+}
+
+export interface Chain {
+  id: string;
+  originReceiptId: string;
   taskId: string;
-  userId: string;
-  imageUrl?: string;
-  caption: string;
-  witnessTagId?: string;
-  createdAt: Date;
-  reactions: Reaction[];
-  imInCount: number;
-  chainCount: number;
-}
-
-export interface Reaction {
-  id: string;
-  userId: string;
-  type: 'lets-go' | 'could-do-more' | 'im-in';
-  createdAt: Date;
+  receiptIds: string[];
+  length: number;
 }
 
 export interface FriendGroup {
   id: string;
   name: string;
-  members: string[];
-  createdAt: Date;
-  weeklyDuoPairings: DuoPairing[];
-  topRealms: Realm[];
-  tasksCompletedThisWeek: number;
+  emoji: string;
+  memberIds: string[];
+  createdAt: string;
 }
-
-export interface DuoPairing {
-  id: string;
-  userId1: string;
-  userId2: string;
-  sharedRealm?: Realm;
-  sharedTask?: Task;
-  isCompleted: boolean;
-  completedBy: string[];
-  weekOf: Date;
-}
-
-export interface Notification {
-  id: string;
-  type: 
-    | 'friend-picked'
-    | 'reaction'
-    | 'im-in'
-    | 'duo-assigned'
-    | 'invite-reward'
-    | 'trending'
-    | 'task-stolen'
-    | 'badge-earned';
-  title: string;
-  body: string;
-  userId?: string;
-  createdAt: Date;
-  isRead: boolean;
-  metadata?: Record<string, unknown>;
-}
-
-export interface FeedPost {
-  id: string;
-  user: User;
-  task: Task;
-  receipt: Receipt;
-  createdAt: Date;
-  trendingScore?: number;
-  copiedBy: string[];
-}
-
-export interface AppState {
-  currentUser: User;
-  todayRealm: Realm;
-  selectedTask: Task | null;
-  taskSelectionMode: 'none' | 'feeling-lucky' | 'pick-own' | 'friend-pick';
-  friendPickStatus: 'selecting' | 'pending' | 'received' | null;
-  friendPicker?: User;
-  friendPickNote?: string;
-  savedTasks: Task[];
-  reactionDeck: FeedPost[];
-  notifications: Notification[];
-  feed: FeedPost[];
-}
-
-export interface OnboardingState {
-  step: number;
-  vibe?: Vibe;
-  favoriteRealms: Realm[];
-  username: string;
-  avatar?: string;
-  friendGroupAction: 'create' | 'join' | null;
-  friendGroupName?: string;
-  isVerified: boolean;
-}
-
-export type Screen = 
-  | 'today' 
-  | 'feed' 
-  | 'react' 
-  | 'friends' 
-  | 'profile' 
-  | 'notifications' 
-  | 'settings';
